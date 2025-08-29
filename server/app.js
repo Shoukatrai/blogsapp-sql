@@ -27,7 +27,21 @@ app.get("/api/myblogs", checkAuth, getMyBlogs);
 app.delete("/api/blogs/:id", checkAuth, deleteBlog);
 app.put("/api/blogs/:id", checkAuth, updateBlog);
 
-connectDB();
-app.listen(PORT, () => {
-  console.log("server is running on port " + PORT);
+app.get("/", (req, res) => {
+  res.send("API is running....");
 });
+try {
+  await connectDB();
+  console.log("DB connected");
+} catch (err) {
+  console.error("DB connection failed", err);
+}
+
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () =>
+    console.log(`server running on http://localhost:${PORT}`)
+  );
+}
+
+export default app;
