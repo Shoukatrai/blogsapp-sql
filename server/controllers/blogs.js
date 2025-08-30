@@ -1,92 +1,95 @@
 import pool from "../config/db.js";
 
-export const postBlog = (req, res) => {
-  const { title, subject, description, private: isPrivate } = req.body;
-  const user_id = req.user.id;
-  if (!title || !subject || !user_id) {
-    return res
-      .status(400)
-      .json({ message: "Title, subject, and user id are required" });
-  }
+// Create blog
+export const postBlog = async (req, res) => {
+  try {
+    const { title, subject, description, private: isPrivate } = req.body;
+    const user_id = req.user.id;
 
-  pool.query(
-    "INSERT INTO blogs (title, subject, user_id, description, private) VALUES (?, ?, ?, ?, ?)",
-    [title, subject, user_id, description, isPrivate],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err });
-        console.log("err", err);
-      }
-      console.log("result", result);
-      return res.status(201).json({
-        message: "Blog post created successfully",
-        blogId: result.insertId,
-      });
-    }
-  );
-};
-
-export const getBlogs = (req, res) => {
-  const query = "SELECT * FROM blogs WHERE private = 0";
-  pool.query(query, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.status(200).json(results);
-  });
-};
-
-export const deleteBlog = (req, res) => {
-  const blog_id = req.params.id;
-  console.log("blog_id", blog_id);
-  pool.query("DELETE FROM blogs WHERE blog_id = ?", [blog_id], (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-      console.log(err , "error")
-    }
-    if (result.affectedRows === 0) {
-      res.status(404).json({ message: "Blog post not found" });
-    } else {
-      res.status(200).json({ message: "Blog post deleted successfully" });
-    }
-  });
-};
-
-export const updateBlog = (req, res) => {
-  const blogId = req.params.id;
-  const { title, subject, description, private: isPrivate } = req.body;
-
-  if (!title || !subject) {
-    return res.status(400).json({ message: "Title and subject are required" });
-  }
-
-  pool.query(
-    "UPDATE blogs SET title = ?, subject = ?, description = ?, private = ? WHERE id = ?",
-    [title, subject, description, isPrivate, blogId],
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Blog post not found" });
-      }
-
+    if (!title || !subject || !user_id) {
       return res
-        .status(200)
-        .json({ message: "Blog post updated successfully" });
+        .status(400)
+        .json({ message: "Title, subject, and user id are required" });
     }
-  );
+
+    const [result] = await pool.query(
+      "INSERT INTO blogs (title, subject, user_id, description, private) VALUES (?, ?, ?, ?, ?)",
+      [title, subject, user_id, description, isPrivate || 0]
+    );
+
+    return res.status(201).json({
+      message: "Blog post created successfully",
+      blogId: result.insertId,
+    });
+  } catch (err) {
+    console.error("PostBlog Error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
 };
 
-export const getMyBlogs = (req, res) => {
-  const userId = req.user.id;
-  const query = "SELECT * FROM blogs WHERE user_id = ?";
-  pool.query(query, [userId], (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).json({ error: err.message });
+// Get all public blogs
+export const getBlogs = async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM blogs WHERE private = 0");
+    return res.status(200).json(rows);
+  } catch (err) {
+    console.error("GetBlogs Error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Get user's own blogs
+export const getMyBlogs = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [rows] = await pool.query("SELECT * FROM blogs WHERE user_id = ?", [userId]);
+    return res.status(200).json(rows);
+  } catch (err) {
+    console.error("GetMyBlogs Error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete blog
+export const deleteBlog = async (req, res) => {
+  try {
+    const blogId = req.params.id;
+
+    const [result] = await pool.query("DELETE FROM blogs WHERE blog_id = ?", [blogId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Blog post not found" });
     }
-    res.status(200).json(results);
-  });
+
+    return res.status(200).json({ message: "Blog post deleted successfully" });
+  } catch (err) {
+    console.error("DeleteBlog Error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Update blog
+export const updateBlog = async (req, res) => {
+  try {
+    const blogId = req.params.id;
+    const { title, subject, description, private: isPrivate } = req.body;
+
+    if (!title || !subject) {
+      return res.status(400).json({ message: "Title and subject are required" });
+    }
+
+    const [result] = await pool.query(
+      "UPDATE blogs SET title = ?, subject = ?, description = ?, private = ? WHERE blog_id = ?",
+      [title, subject, description, isPrivate || 0, blogId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Blog post not found" });
+    }
+
+    return res.status(200).json({ message: "Blog post updated successfully" });
+  } catch (err) {
+    console.error("UpdateBlog Error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
 };
