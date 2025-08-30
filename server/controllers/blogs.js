@@ -31,14 +31,22 @@ export const postBlog = async (req, res) => {
 export const getBlogs = async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM blogs WHERE private = 0");
-    return res.status(200).json(rows);
+    console.log("rows", rows);
+    const response = rows.map((blog) => ({
+      ...blog,
+      private: blog.private === 1, // Convert to boolean
+    }));
+    console.log("response", response);
+    
+    
+    return res.status(200).json(response);
   } catch (err) {
     console.error("GetBlogs Error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };
 
-// Get user's own blogs
+// Get users blogs
 export const getMyBlogs = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -72,6 +80,7 @@ export const deleteBlog = async (req, res) => {
 export const updateBlog = async (req, res) => {
   try {
     const blogId = req.params.id;
+    console.log("blogId", blogId);
     const { title, subject, description, private: isPrivate } = req.body;
 
     if (!title || !subject) {

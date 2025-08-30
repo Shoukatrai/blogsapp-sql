@@ -9,12 +9,16 @@ import { AddBlogModal } from "../components/AddBlogModal";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { EditBlogModal } from "../components/EditBlogModal";
 
 const Home = () => {
   const [data, setData] = React.useState([]);
   const [filteredData, setFilteredData] = React.useState([]);
   const [addBlogModal, setAddBlogModal] = React.useState(false);
+  const [editBlogModal, seteditBlogModal] = React.useState(false);
   const [isRefresh, setIsRefresh] = React.useState(false);
+  const [selectBlog, setSelectBlog] = React.useState(null);
+
   const token = Cookies.get("token");
   const navigate = useNavigate();
 
@@ -34,7 +38,6 @@ const Home = () => {
     fetchBlogs();
   }, [isRefresh]);
 
-  // ✅ Filter blogs when user types in navbar search
   const handleSearch = (query) => {
     if (!query) {
       setFilteredData(data);
@@ -66,7 +69,13 @@ const Home = () => {
       >
         {filteredData.length > 0 ? (
           filteredData.map((blog) => (
-            <BlogCard key={blog._id || blog.id} blog={blog} setIsRefresh = {setIsRefresh}/>
+            <BlogCard
+              key={blog._id || blog.id}
+              blog={blog}
+              setIsRefresh={setIsRefresh}
+              setSelectBlog={setSelectBlog}
+              seteditBlogModal={seteditBlogModal}
+            />
           ))
         ) : (
           <Typography variant="h6" color="white" mt={4}>
@@ -96,12 +105,24 @@ const Home = () => {
         </Button>
       )}
 
-      <AddBlogModal
-        open={addBlogModal}
-        setOpen={setAddBlogModal}
-        isRefresh={isRefresh}
-        setIsRefresh={setIsRefresh}
-      />
+      {addBlogModal && (
+        <AddBlogModal
+          open={addBlogModal}
+          setOpen={setAddBlogModal}
+          isRefresh={isRefresh}
+          setIsRefresh={setIsRefresh}
+        />
+      )}
+
+      {editBlogModal && (
+        <EditBlogModal
+          open={editBlogModal}
+          setOpen={seteditBlogModal}
+          isRefresh={isRefresh}
+          setIsRefresh={setIsRefresh}
+          selectBlog={selectBlog}
+        />
+      )}
     </>
   );
 };

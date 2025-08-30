@@ -13,10 +13,9 @@ import { BASE_URL, toastAlert } from "../utils";
 import { apiEndPoints } from "../constant/apiEndPoints";
 import axios from "axios";
 import Cookies from "js-cookie";
-const BlogCard = ({ blog, setIsRefresh }) => {
+const BlogCard = ({ blog, setIsRefresh, setSelectBlog, seteditBlogModal }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -25,8 +24,11 @@ const BlogCard = ({ blog, setIsRefresh }) => {
     setAnchorEl(null);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (editBlog) => {
+    console.log("editBlog" , editBlog)
     console.log("Edit clicked");
+    setSelectBlog(editBlog);
+    seteditBlogModal((prev) => !prev);
     handleMenuClose();
   };
 
@@ -144,7 +146,13 @@ const BlogCard = ({ blog, setIsRefresh }) => {
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem onClick={handleEdit}>✏️ Edit</MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleEdit(blog);
+            }}
+          >
+            ✏️ Edit
+          </MenuItem>
           <MenuItem
             onClick={() => {
               handleDelete(blog?.blog_id);

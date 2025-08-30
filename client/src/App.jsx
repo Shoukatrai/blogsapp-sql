@@ -5,15 +5,21 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import { Bounce, ToastContainer } from "react-toastify";
 import MyBlogs from "./pages/MyBlogs";
+import AuthRoute from "./routes/authRoute";
+import PrivateRoute from "./routes/PrivateRoute";
 
 const App = () => {
   return (
     <>
       <Routes>
         <Route index element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/myBlogs" element={<MyBlogs />} />
+        <Route element={<AuthRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/myBlogs" element={<MyBlogs />} />
+        </Route>
       </Routes>
       <ToastContainer
         position="top-right"

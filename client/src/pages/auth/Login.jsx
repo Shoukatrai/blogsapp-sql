@@ -131,7 +131,7 @@ const Login = () => {
               "&:hover": { backgroundColor: "#2e7d32" },
             }}
           >
-            Login
+            {loading ? "logging in" :"Login"}
           </Button>
           <Typography variant="body2" sx={{ mt: 1, textAlign: "center" }}>
             Don’t have an account?{" "}

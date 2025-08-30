@@ -6,11 +6,15 @@ import { BASE_URL } from "../utils";
 import { apiEndPoints } from "../constant/apiEndPoints";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { EditBlogModal } from "../components/EditBlogModal";
 
 const MyBlogs = () => {
   const [data, setData] = React.useState([]);
   const [filteredData, setFilteredData] = React.useState([]);
   const [isRefresh, setIsRefresh] = React.useState(false);
+  const [editBlogModal, seteditBlogModal] = React.useState(false);
+  const [selectBlog, setSelectBlog] = React.useState(null);
+
   const fetchBlogs = async () => {
     try {
       const api = `${BASE_URL}${apiEndPoints.getMyBlogs}`;
@@ -31,7 +35,6 @@ const MyBlogs = () => {
     fetchBlogs();
   }, [isRefresh]);
 
-  // ✅ Filter blogs when searching
   const handleSearch = (query) => {
     if (!query) {
       setFilteredData(data);
@@ -65,6 +68,8 @@ const MyBlogs = () => {
               key={blog._id || blog.id}
               blog={blog}
               setIsRefresh={setIsRefresh}
+              setSelectBlog={setSelectBlog}
+              seteditBlogModal={seteditBlogModal}
             />
           ))
         ) : (
@@ -73,6 +78,15 @@ const MyBlogs = () => {
           </Typography>
         )}
       </Stack>
+      {editBlogModal && (
+        <EditBlogModal
+          open={editBlogModal}
+          setOpen={seteditBlogModal}
+          isRefresh={isRefresh}
+          setIsRefresh={setIsRefresh}
+          selectBlog={selectBlog}
+        />
+      )}
     </>
   );
 };

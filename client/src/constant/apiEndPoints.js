@@ -5,4 +5,5 @@ export const apiEndPoints = {
   createBlog: "/blogs/create",
   getMyBlogs: "/myblogs",
   delteBlog: (id) => `/blogs/${id}`, 
+  updateBlog: (id) => `/blogs/${id}`, 
 };
