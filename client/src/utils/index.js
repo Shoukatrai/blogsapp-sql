@@ -1,6 +1,8 @@
 import { Bounce, toast } from "react-toastify";
 
-export const BASE_URL = "http://blogsappbackend.vercel.app/api";
+// export const BASE_URL = "http://localhost:5000/api";
+export const BASE_URL = "https://blogsappbackend.vercel.app/api";
+
 export const toastAlert = (obj) => {
   if (obj.type === "error") {
     toast.error(obj.message, {
