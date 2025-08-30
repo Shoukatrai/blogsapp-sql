@@ -1,6 +1,6 @@
-import { db } from "../config/db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import pool from "../config/db.js";
 const createUser = async (req, res) => {
   const { name, email, password, type } = req.body;
 
@@ -8,7 +8,7 @@ const createUser = async (req, res) => {
     return res.status(400).json({ message: "Name and email are required" });
   }
 
-  db.query(
+  pool.query(
     "SELECT * FROM users WHERE email = ?",
     [email],
     async (err, results) => {
@@ -23,7 +23,7 @@ const createUser = async (req, res) => {
   );
   const hashedPassword = await bcrypt.hash(password, 10);
   console.log(hashedPassword);
-  db.query(
+  pool.query(
     "INSERT INTO users (name, email, password, type) VALUES (?, ?, ?, ?)",
     [name, email, hashedPassword, type],
     (err, result) => {
@@ -47,7 +47,7 @@ const loginUser = (req, res) => {
     return res.status(400).json({ message: "Email and Password are required" });
   }
 
-  db.query(
+  pool.query(
     "SELECT * FROM users WHERE email = ?",
     [email],
     async (err, results) => {

@@ -1,4 +1,4 @@
-import { db } from "../config/db.js";
+import pool from "../config/db.js";
 
 export const postBlog = (req, res) => {
   const { title, subject, description, private: isPrivate } = req.body;
@@ -9,7 +9,7 @@ export const postBlog = (req, res) => {
       .json({ message: "Title, subject, and user id are required" });
   }
 
-  db.query(
+  pool.query(
     "INSERT INTO blogs (title, subject, user_id, description, private) VALUES (?, ?, ?, ?, ?)",
     [title, subject, user_id, description, isPrivate],
     (err, result) => {
@@ -28,7 +28,7 @@ export const postBlog = (req, res) => {
 
 export const getBlogs = (req, res) => {
   const query = "SELECT * FROM blogs WHERE private = 0";
-  db.query(query, (err, results) => {
+  pool.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -39,7 +39,7 @@ export const getBlogs = (req, res) => {
 export const deleteBlog = (req, res) => {
   const blog_id = req.params.id;
   console.log("blog_id", blog_id);
-  db.query("DELETE FROM blogs WHERE blog_id = ?", [blog_id], (err, result) => {
+  pool.query("DELETE FROM blogs WHERE blog_id = ?", [blog_id], (err, result) => {
     if (err) {
       return res.status(500).json({ error: err.message });
       console.log(err , "error")
@@ -60,7 +60,7 @@ export const updateBlog = (req, res) => {
     return res.status(400).json({ message: "Title and subject are required" });
   }
 
-  db.query(
+  pool.query(
     "UPDATE blogs SET title = ?, subject = ?, description = ?, private = ? WHERE id = ?",
     [title, subject, description, isPrivate, blogId],
     (err, result) => {
@@ -82,7 +82,7 @@ export const updateBlog = (req, res) => {
 export const getMyBlogs = (req, res) => {
   const userId = req.user.id;
   const query = "SELECT * FROM blogs WHERE user_id = ?";
-  db.query(query, [userId], (err, results) => {
+  pool.query(query, [userId], (err, results) => {
     if (err) {
       console.log(err);
       return res.status(500).json({ error: err.message });
